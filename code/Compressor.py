@@ -1,35 +1,85 @@
-from kivy import app
-from kivy.app import App
-from kivy.uix.widget import Widget
-from kivy.lang import Builder
-from kivy.properties import ObjectProperty
+#PIL
+from tkinter import filedialog
+import PIL
+from PIL import Image
 
 #TinyPng
 import tinify
 import os 
 
-# Designate our .kv design file
-Builder.load_file('compressorlayout.kv')
+#Tkinter
+from tkinter import * 
+from tkinter import dialog
 
-class MyCompressor ():
+from os import walk
+
+
+
+class MyWatermark:
+
+    def __init__(self, pFolderPath, pSaveFolderPath, pWatermarkPath):
+        self.folder_path = pFolderPath
+        self.watermark_path = pWatermarkPath
+        self.folder_save_path = pSaveFolderPath
+    
+    def watermark(self, pImageTitle):
+        #Image
+        image_file_path = self.folder_path + pImageTitle
+        img = PIL.Image.open(image_file_path)
+        my_height, my_width = img.size
+
+        #Logo
+        #logo_path = '../watermark/logo_w_letters.png'   #Path del Logo 
+        logo_path = self.watermark_path
+        logo_size = (300,300)                           #Logo Size
+        logo_img = PIL.Image.open(logo_path)            #Logo 
+        logo_img.thumbnail(logo_size)                   #Logo resize
+
+        #Logo Position
+        pos_y = my_height -  logo_size[0] - 15
+        pos_x = my_width  - logo_size[1] - 15
+
+        #Paste logo onto image
+        img.paste(logo_img, (pos_y, pos_x), logo_img.convert('RGBA'))
+
+        #save_path = asksaveasfilename()
+
+        save_path = self.folder_save_path + '/' + pImageTitle
+
+        img.save(save_path)
+    
+    def bulkWatermark(self):
+        dirArray = next(walk(self.folder_path), (None, None, []))[2]  # [] if no file
+
+
+
+class MyCompressor:
     tinify.key = "hlH2Tr7d0p0gpnPsypV53Klp5kR3pbPv"
     PLAN_TOTAL_USAGE = 500
     CMPCODE ="cmp-" 
 
+    def __init__(self, pFolderPath, pSaveFolderPath):
+        self.folder_path = pFolderPath
+        self.folder_save_path = pSaveFolderPath
+
+
     #input_path = Path of the image to compress 
     #output_path = To store the compressed image 
-    def compressImage( input_path, output_path ):
+    def compressImage(self, input_path, output_path ):
         try:
             source = tinify.from_file(input_path)
-            resize = source.resize(
-                method="fit",
-                width=980,
-                height=700
-            )
+
+            # resize = source.resize(
+            #     method="fit",
+            #     width=980,
+            #     height=700
+            # )
             #source.preserve("creation")
-            resize.to_file(output_path)
-            # compressions_this_month = 500 - tinify.compression_count
-            # print("%d compressions left"%(compressions_this_month))
+
+            source.to_file(output_path)
+
+            compressions_this_month = 500 - tinify.compression_count
+            print("%d compressions left"%(compressions_this_month))
             return True
         except tinify.AccountError:
             # Verify your API key and account limit.
@@ -49,17 +99,17 @@ class MyCompressor ():
             return False
 
     #Returns the number of compressions left using the api
-    def planUsageLeft(planTotalUsage):
+    def planUsageLeft(self, planTotalUsage):
         try:
             compressions_this_month = planTotalUsage - tinify.compression_count
             print("%d compressions left"%(compressions_this_month))
             pass
         except tinify.AccountError:
             # Verify your API key and account limit.
-            print ("Invalid KEY")
+            print ("Verify your API key and account limit.")
             pass
         except tinify.ClientError:
-            print("File type not supported")
+            print("Check your source image and request options.")
             pass
         except tinify.ServerError:
             print("Temporary issue with the Tinify API.")
@@ -74,41 +124,49 @@ class MyCompressor ():
     #Gets a path array of images and calls "compressImage" to compress every image
     #dirPath: Directory path 
     #dirArr: Path Array for images in the directory
-    def bulkCompressing( dirPath, dirArr, compressImageFunction, cmpCode ):
+    def bulkCompressing(self):
+        dirArr = next(walk(self.folder_path), (None, None, []))[2]  # [] if no file
+
         for i,image in enumerate(dirArr):
             print( "Compressing %d out of %d"%((i+1), len(dirArr)) )
+            
+            input_Path = self.folder_path +'/'+image   
+            output_Path = self.folder_save_path + '/' + self.CMPCODE + image
 
-            input_Path = dirPath + image   
-            output_Path = dirPath + cmpCode + image
+            print(input_Path)
+            print(output_Path)
+
+            x = self.compressImage(input_Path, output_Path)
 
             #Compress every image and stores it in the same directory
-            if( not compressImageFunction(input_Path,output_Path) ):
+            if( not x):
                 print( "An unexpected error was found. Compression Cancelled" )
                 return 
             
 
 
+# in_folder = "../test_images"
+out_folder = "../results"
+# cmprssr = MyCompressor(in_folder, out_folder)
 
-class CompressorLayout(Widget):
-    name = ObjectProperty(None)
-    pizza = ObjectProperty(None)
+# wtmarkPath = "../watermark/logo_w_letters.png"
+# wtmrk = MyWatermark(out_folder,out_folder)
 
-    def press(self):
-        #Get input information
-        name = self.name.text
-        pizza = self.pizza.text
 
-        print("Hello %s you like %s pizza!"%(name, pizza))
+def openFile():
+    print("hello")
+    directory_Path = filedialog.askdirectory()
+    print(directory_Path)
 
-        #Clear input boxes
-        self.name.text = " "
-        self.pizza.text = " "
+    cmprssr = MyCompressor(directory_Path, out_folder)
 
-    pass
+    cmprssr.bulkCompressing()
 
-class CompressorApp(App):
-    def build (self):
-        return CompressorLayout()
+    filenames = next(walk(directory_Path), (None, None, []))[2]  # [] if no file
+    print(filenames)
 
-if __name__ == '__main__':
-    CompressorApp().run()
+
+window = Tk()
+button = Button(text="Open",command=openFile)
+button.pack()
+window.mainloop()
