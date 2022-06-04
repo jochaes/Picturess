@@ -5,13 +5,14 @@ from PIL import Image
 
 #TinyPng
 import tinify
-import os 
 
 #Tkinter
 from tkinter import * 
 from tkinter import dialog
 
-from os import walk
+import os 
+import sys
+import glob
 
 
 
@@ -24,7 +25,7 @@ class MyWatermark:
     
     def watermark(self, pImageTitle):
         #Image
-        image_file_path = self.folder_path + pImageTitle
+        image_file_path = self.folder_path + '/' + pImageTitle
         img = PIL.Image.open(image_file_path)
         my_height, my_width = img.size
 
@@ -39,6 +40,9 @@ class MyWatermark:
         pos_y = my_height -  logo_size[0] - 15
         pos_x = my_width  - logo_size[1] - 15
 
+        # if img.mode != 'RGB':
+        #     img = img.convert('RGB')
+        
         #Paste logo onto image
         img.paste(logo_img, (pos_y, pos_x), logo_img.convert('RGBA'))
 
@@ -49,9 +53,11 @@ class MyWatermark:
         img.save(save_path)
     
     def bulkWatermark(self):
-        dirArray = next(walk(self.folder_path), (None, None, []))[2]  # [] if no file
-
-
+        dirArray = [ os.path.basename(f) for f in glob.glob(self.folder_path+"/*.*")]
+        for i,image in enumerate(dirArray):
+            print( "Watermarking %d out of %d"%((i+1), len(dirArray)) )
+            self.watermark(image)
+            
 
 class MyCompressor:
     tinify.key = "hlH2Tr7d0p0gpnPsypV53Klp5kR3pbPv"
@@ -125,7 +131,8 @@ class MyCompressor:
     #dirPath: Directory path 
     #dirArr: Path Array for images in the directory
     def bulkCompressing(self):
-        dirArr = next(walk(self.folder_path), (None, None, []))[2]  # [] if no file
+        dirArr = [ os.path.basename(f) for f in glob.glob(self.folder_path+"/*.*")]
+
 
         for i,image in enumerate(dirArr):
             print( "Compressing %d out of %d"%((i+1), len(dirArr)) )
@@ -144,26 +151,50 @@ class MyCompressor:
                 return 
             
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
-# in_folder = "../test_images"
-out_folder = "../results"
-# cmprssr = MyCompressor(in_folder, out_folder)
+    
 
-# wtmarkPath = "../watermark/logo_w_letters.png"
-# wtmrk = MyWatermark(out_folder,out_folder)
+
+
+
+# wtmarkPath = resource_path("logo_w_letters.png")
+wtmarkPath = "../watermark/logo_w_letters.png"
+wtmrk = MyWatermark("","", wtmarkPath)
+cmprssr = MyCompressor("", "")
+
 
 
 def openFile():
-    print("hello")
+    
+    #Get Directory Path 
     directory_Path = filedialog.askdirectory()
-    print(directory_Path)
+    
+    #Output Path 
+    save_directory =  os.path.dirname(directory_Path) + "/ready_to_upload"
 
-    cmprssr = MyCompressor(directory_Path, out_folder)
+    #Check if path exists
+    if not os.path.exists( save_directory ):
+        os.makedirs(save_directory, exist_ok=False)
 
+    
+    wtmrk.folder_path = save_directory
+    wtmrk.folder_save_path = save_directory
+
+    cmprssr.folder_path = directory_Path
+    cmprssr.folder_save_path = save_directory
+
+
+    print("Compressing Images")
     cmprssr.bulkCompressing()
-
-    filenames = next(walk(directory_Path), (None, None, []))[2]  # [] if no file
-    print(filenames)
+    
+    print("Watermarking Images")
+    wtmrk.bulkWatermark()
 
 
 window = Tk()
