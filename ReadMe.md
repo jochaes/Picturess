@@ -29,7 +29,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/github_username/repo_name">
+  <a href="https://github.com/jochaes/picturess">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -38,14 +38,14 @@
   <p align="center">
     A nice compressor and watermark app for you picturess!
     <br />
-    <a href="https://github.com/github_username/repo_name"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/jochaes/picturess"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/github_username/repo_name">View Demo</a>
+    <a href="https://github.com/jochaes/picturess">View Demo</a>
     ·
-    <a href="https://github.com/github_username/repo_name/issues">Report Bug</a>
+    <a href="https://github.com/jochaes/picturess/issues">Report Bug</a>
     ·
-    <a href="https://github.com/github_username/repo_name/issues">Request Feature</a>
+    <a href="https://github.com/jochaes/picturess/issues">Request Feature</a>
   </p>
 </div>
 
@@ -92,14 +92,9 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 
 ### Built With
 
-* [Next.js](https://nextjs.org/)
-* [React.js](https://reactjs.org/)
-* [Vue.js](https://vuejs.org/)
-* [Angular](https://angular.io/)
-* [Svelte](https://svelte.dev/)
-* [Laravel](https://laravel.com)
-* [Bootstrap](https://getbootstrap.com)
-* [JQuery](https://jquery.com)
+* [Kivy](https://kivy.org)
+
+* [Python](https://python.org)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -215,16 +210,16 @@ Project Link: [https://github.com/jochaes/picturess](https://github.com/jochaes/
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
-[contributors-url]: https://github.com/github_username/repo_name/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
-[forks-url]: https://github.com/github_username/repo_name/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_username/repo_name.svg?style=for-the-badge
-[stars-url]: https://github.com/github_username/repo_name/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo_name.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo_name/issues
-[license-shield]: https://img.shields.io/github/license/github_username/repo_name.svg?style=for-the-badge
-[license-url]: https://github.com/github_username/repo_name/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/jochaes/picturess.svg?style=for-the-badge
+[contributors-url]: https://github.com/jochaes/picturess/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/jochaes/picturess.svg?style=for-the-badge
+[forks-url]: https://github.com/jochaes/picturess/network/members
+[stars-shield]: https://img.shields.io/github/stars/jochaes/picturess.svg?style=for-the-badge
+[stars-url]: https://github.com/jochaes/picturess/stargazers
+[issues-shield]: https://img.shields.io/github/issues/jochaes/picturess.svg?style=for-the-badge
+[issues-url]: https://github.com/jochaes/picturess/issues
+[license-shield]: https://img.shields.io/github/license/jochaes/picturess.svg?style=for-the-badge
+[license-url]: https://github.com/jochaes/picturess/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/linkedin_username
+[linkedin-url]: https://linkedin.com/in/josuedanielcha
 [product-screenshot]: images/screenshot.png
