@@ -1,6 +1,7 @@
 #PIL
 from tkinter import filedialog
 import PIL
+from PIL import Image
 
 #TinyPng
 import tinify
@@ -11,7 +12,6 @@ from tkinter import *
 import os 
 import sys
 import glob
-import requests
 
 
 
