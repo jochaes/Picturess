@@ -48,10 +48,11 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='logo.ico',
 )
 app = BUNDLE(
     exe,
     name='Picturess.app',
-    icon=None,
+    icon='logo.ico',
     bundle_identifier=None,
 )
