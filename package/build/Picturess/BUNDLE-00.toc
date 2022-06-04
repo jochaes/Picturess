@@ -1,0 +1,3 @@
+([('Picturess',
+   '/Users/d4n11083/Desktop/Repositorios/Picturess/package/dist/Picturess',
+   'EXECUTABLE')],)
