@@ -1,18 +1,17 @@
 #PIL
 from tkinter import filedialog
 import PIL
-from PIL import Image
 
 #TinyPng
 import tinify
 
 #Tkinter
 from tkinter import * 
-from tkinter import dialog
 
 import os 
 import sys
 import glob
+import requests
 
 
 
@@ -68,6 +67,14 @@ class MyCompressor:
         self.folder_path = pFolderPath
         self.folder_save_path = pSaveFolderPath
 
+        try:
+            tinify.key = "hlH2Tr7d0p0gpnPsypV53Klp5kR3pbPv"
+            tinify.validate()
+        except tinify.Error:
+        # Validation of API key failed.
+            print ("Validation Error")
+            pass
+
 
     #input_path = Path of the image to compress 
     #output_path = To store the compressed image 
@@ -109,30 +116,29 @@ class MyCompressor:
         try:
             compressions_this_month = planTotalUsage - tinify.compression_count
             print("%d compressions left"%(compressions_this_month))
-            pass
+            return True 
         except tinify.AccountError:
             # Verify your API key and account limit.
             print ("Verify your API key and account limit.")
-            pass
+            return False
         except tinify.ClientError:
             print("Check your source image and request options.")
-            pass
+            return False
         except tinify.ServerError:
             print("Temporary issue with the Tinify API.")
-            pass        
+            return False     
         except tinify.ConnectionError:
             print("A network connection error occurred.")
-            pass    
+            return False 
         except Exception:
             print("Something else went wrong, unrelated to the Tinify API.")
-            pass
+            return False
 
     #Gets a path array of images and calls "compressImage" to compress every image
     #dirPath: Directory path 
     #dirArr: Path Array for images in the directory
     def bulkCompressing(self):
         dirArr = [ os.path.basename(f) for f in glob.glob(self.folder_path+"/*.*")]
-
 
         for i,image in enumerate(dirArr):
             print( "Compressing %d out of %d"%((i+1), len(dirArr)) )
@@ -150,7 +156,6 @@ class MyCompressor:
                 print( "An unexpected error was found. Compression Cancelled" )
                 return 
 
-
 #https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file
 
 def resource_path(relative_path):
@@ -163,6 +168,8 @@ def resource_path(relative_path):
 
 wtmarkPath = resource_path("logo_w_letters.png")
 #wtmarkPath = "../watermark/logo_w_letters.png"
+
+#messagebox.showerror('Python Error', wtmarkPath)
 wtmrk = MyWatermark("","", wtmarkPath)
 cmprssr = MyCompressor("", "")
 
@@ -187,7 +194,7 @@ def openFile():
     cmprssr.folder_path = directory_Path
     cmprssr.folder_save_path = save_directory
 
-
+    cmprssr.planUsageLeft(500)
     print("Compressing Images")
     cmprssr.bulkCompressing()
     
