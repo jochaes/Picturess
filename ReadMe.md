@@ -30,7 +30,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/jochaes/picturess">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/logo.png" alt="Logo" width="160" height="160">
   </a>
 
 <h3 align="center">Picturess</h3>
@@ -38,7 +38,7 @@
   <p align="center">
     A nice compressor and watermark app for you picturess!
     <br />
-    <a href="https://github.com/jochaes/picturess"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/jochaes/picturess/wiki"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/jochaes/picturess">View Demo</a>
@@ -92,9 +92,11 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 
 ### Built With
 
-* [Kivy](https://kivy.org)
-
 * [Python](https://python.org)
+* [Kivy](https://kivy.org)
+* [Tinify API](https://tinypng.com/developers/reference/python)
+* [Pillow](https://pypi.org/project/Pillow/)
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
