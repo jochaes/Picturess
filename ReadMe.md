@@ -221,7 +221,7 @@ Project Link: [https://github.com/jochaes/picturess](https://github.com/jochaes/
 [issues-shield]: https://img.shields.io/github/issues/jochaes/picturess.svg?style=for-the-badge
 [issues-url]: https://github.com/jochaes/picturess/issues
 [license-shield]: https://img.shields.io/github/license/jochaes/picturess.svg?style=for-the-badge
-[license-url]: https://github.com/jochaes/picturess/blob/master/LICENSE.txt
+[license-url]: https://github.com/jochaes/picturess/blob/master/license.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/josuedanielcha
 [product-screenshot]: images/screenshot.png
