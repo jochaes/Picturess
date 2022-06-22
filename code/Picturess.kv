@@ -1,0 +1,117 @@
+PicturessMainPage:
+
+<PicturessMainPage>:
+    orientation:"vertical"
+    canvas:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    #NavBar
+    RelativeLayout:
+        size_hint: 1,0.1
+        #Picturess logo
+        BoxLayout:
+            orientation:"horizontal"
+            size_hint: 1,1
+            Label:
+                size_hint: 1,1
+                text:"Picturess"
+                color: 0,0,0,1
+#            Button:
+#                size_hint: 0.7,1
+#                text:"Change Api Key"
+
+
+    #Bottomlayout
+    BoxLayout:
+        size_hint: 1,0.9
+        orientation:"horizontal"
+
+        #Left Option Ba
+        StackLayout:
+            canvas:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+            size_hint: 0.3,1
+            orientation:"rl-tb"
+            padding: ("10dp","10dp","10dp","10dp" )
+
+            Label:
+                size_hint:1,.1
+                color: 0,0,0,1
+                text:root.lab_left_images
+                font_name:"fonts/AnekLatin.ttf"
+            Button:
+                size_hint: 1,.2
+                text:"Open Folder"
+                ids: {"btn_id":"open_folder_btn"}
+                on_release: root.on_button_click(self)
+                disabled: not root.btns_enable_compression
+            Label:
+                size_hint:1,.1
+                color: 0,0,0,1
+                text: root.lab_left_waterm
+            Switch:
+                active:True
+                size_hint: 1,None
+                height:"20dp"
+                #text:"Watermark?"
+                on_active: root.on_switch_active(self)
+
+        #Right Option Bar 
+        BoxLayout:
+            size_hint: .7,1
+            orientation:"vertical"
+            canvas:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Line:
+                    width: 1
+                    rectangle: self.x, self.y, self.width, self.height
+            #Pantallita con los nombres de los archivos 
+            BoxLayout:
+                size_hint: 1,.8
+                orientation:"vertical"
+                Label:
+                    color: 0,0,0,1
+                    text: root.lab_right_compr_eta
+                ProgressBar:
+                    value:50
+                    max:100
+                Label:
+                    color: 0,0,0,1
+                    text:root.lab_right_compr_inf
+                
+            
+            BoxLayout:
+                size_hint: 1,.2
+                orientation:"horizontal"
+                canvas:
+                    Color:
+                        rgba: 0, 0, 0, 1
+                    Line:
+                        width: 1
+                        rectangle: self.x, self.y, self.width, self.height
+                padding: ("10dp","10dp","10dp","10dp" )
+
+                BoxLayout:
+                    size_hint: 6,1
+                    Label:
+                        color: 0,0,0,1
+                        text:root.lab_right_save_fldr
+
+                Button:
+                    size_hint: 4,1
+                    text:"Start"
+                    ids: {"btn_id":"start_image_compression"}
+                    on_release: root.on_button_click(self)
+                    disabled: not root.btns_enable_compression
+
+
+
+            
