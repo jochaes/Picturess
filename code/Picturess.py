@@ -212,7 +212,7 @@ class MyFileHandler:
         return (image_folder_Path[0], save_directory)
     
 
-    def newFolder(dir_path):
+    def newFolder(self, dir_path):
         if not os.path.exists( dir_path ):
             os.makedirs(dir_path, exist_ok=False)
 
@@ -311,7 +311,7 @@ class PicturessMainPage(BoxLayout):
     
     def find_Image_folder(self):
         open_folder, save_folder = self.file_handler_instance.openFolder() 
-        
+
         if open_folder != 0 :
 
             self.watermark_instance.folder_path = save_folder
