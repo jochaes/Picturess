@@ -19,6 +19,8 @@ from kivy.app import App
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
+from kivy.clock import Clock, mainthread
+
 
 from kivy.properties import StringProperty, BooleanProperty
 
@@ -29,6 +31,7 @@ from kivy.uix.button import Button
 import os 
 import sys
 import glob
+import concurrent.futures
 
 
 
@@ -206,10 +209,13 @@ class MyFileHandler:
         save_directory =  os.path.dirname(image_folder_Path[0]) + "/ready_to_upload"
 
         #Check if path exists
-        if not os.path.exists( save_directory ):
-            os.makedirs(save_directory, exist_ok=False)
-
         return (image_folder_Path[0], save_directory)
+    
+
+    def newFolder(dir_path):
+        if not os.path.exists( dir_path ):
+            os.makedirs(dir_path, exist_ok=False)
+
     
 
 
@@ -256,20 +262,23 @@ class PicturessMainPage(BoxLayout):
         self.comprssor_instance = MyCompressor("", "")
 
         self.file_handler_instance = MyFileHandler()
+        self.executor = concurrent.futures.ThreadPoolExecutor()
 
     file_handler_instance = None
     watermark_instance = None
     comprssor_instance = None
     watermark_path     =""
+    executor = None
 
-    lab_left_images = StringProperty("Find Image Folder")
+    lab_left_images = StringProperty("Images")
     lab_left_waterm = StringProperty("Watermark Images?")
 
-    lab_right_compr_eta = StringProperty("Comprimiendo imagen 20/32")
-    lab_right_compr_inf = StringProperty("Guardando Imagenes en c:/imagenes/ready_to_upload")
+    lab_right_compr_eta = StringProperty("Waiting")
+    lab_right_compr_inf = StringProperty("Images will be stored at:")
 
-    lab_right_save_fldr = StringProperty("Folder: c:/imagenes/prop1")
+    lab_right_save_fldr = StringProperty("Images are taken from:")
     
+
     btns_enable_compression = BooleanProperty(True)
     compress_with_watermark = True 
 
@@ -302,6 +311,7 @@ class PicturessMainPage(BoxLayout):
     
     def find_Image_folder(self):
         open_folder, save_folder = self.file_handler_instance.openFolder() 
+        
         if open_folder != 0 :
 
             self.watermark_instance.folder_path = save_folder
@@ -309,28 +319,54 @@ class PicturessMainPage(BoxLayout):
             self.comprssor_instance.folder_path = open_folder
             self.comprssor_instance.folder_save_path = save_folder
 
-            print(open_folder, "OMG", save_folder)
+            self.lab_right_compr_inf = "Images will be stored at: \n " + save_folder
+            self.lab_right_save_fldr = "Images are taken from: \n "+ open_folder
+
+            # print(open_folder, "OMG", save_folder)
         else:
-            print("No eligió ningún folde")
+            print("No eligió ningún folder")
 
     def start(self):
         print("Starting")
-        btns_enable_compression = False
-        if(self.watermark_instance.folder_path != "" ):
+        self.btns_enable_compression = False
+        save_path = self.watermark_instance.folder_save_path
+        if( save_path != "" ):
+            #Create new directory to save images
+            self.file_handler_instance.newFolder(save_path)
+            
+            #Starts Thread 
+            self.lab_right_compr_eta = "Processing Images"
+            future = self.executor.submit(self.start_aux)
+            future.add_done_callback( self.finish_aux)
+            # self.start_aux()
 
-            self.comprssor_instance.planUsageLeft(500)
-            print("Compressing Images")
-            self.comprssor_instance.bulkCompressing()
-            if( self.compress_with_watermark ):
-                print("Watermarking Images")
-                self.watermark_instance.bulkWatermark()
-            btns_enable_compression = True
-            self.delete_path()
         else:
-            print("Debe elegir el directorio de las imagenes a comprimir")
-            btns_enable_compression = True
+            print("You must pick the f")
+            self.btns_enable_compression = True
             self.delete_path()
-            self.call_pops("debe elegir un directorio", "Para comprimir debe seleccionar un directorio")
+            self.call_pops("Wait! :D", "You need to select a folder with images first.")
+    
+    
+    def start_aux(self):
+        self.comprssor_instance.planUsageLeft(500)
+        print("Compressing Images")
+
+        self.comprssor_instance.bulkCompressing()
+
+        if( self.compress_with_watermark ):
+            print("Watermarking Images")
+            self.watermark_instance.bulkWatermark()
+
+    @mainthread
+    def finish_aux(self, x):
+        print(x)
+        self.lab_right_compr_eta = "Waiting"
+        self.btns_enable_compression = True
+        self.lab_right_compr_inf = "Images will be stored at:" 
+        self.lab_right_save_fldr = "Images are taken from:"
+        self.delete_path()
+        self.call_pops("Done", "Your Images are ready")
+
 
 
     def delete_path(self):
@@ -340,6 +376,7 @@ class PicturessMainPage(BoxLayout):
 
         self.comprssor_instance.folder_path = ""
         self.comprssor_instance.folder_save_path = ""
+
 
     def call_pops(self,tit,conten):
         cont=Button(text=conten)
