@@ -1,29 +1,23 @@
 #PIL
-from tkinter import filedialog
+from webbrowser import MacOSX
 import PIL
 from PIL import Image
-from matplotlib.pyplot import title
 
+#plyer
+import plyer.platforms.macosx.filechooser
 from plyer import filechooser
 
 
-#TinyPng
-import tinify
 
-#Tkinter
-from tkinter import * 
+#TinyPng
+from tinify import tinify
 
 #Kivy
-from xmlrpc.client import Boolean
 from kivy.app import App
-
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.popup import Popup
 from kivy.clock import Clock, mainthread
-
-
 from kivy.properties import StringProperty, BooleanProperty
-
 from kivy.metrics import dp
 from kivy.uix.button import Button
 
@@ -32,6 +26,30 @@ import os
 import sys
 import glob
 import concurrent.futures
+
+def override_where():
+    """ overrides certifi.core.where to return actual location of cacert.pem"""
+    # change this to match the location of cacert.pem
+    cert_path = "certifi/cacert.pem"
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(base_path, cert_path)
+    
+
+
+# is the program compiled?
+if hasattr(sys, "frozen"):
+    import certifi.core
+
+    os.environ["REQUESTS_CA_BUNDLE"] = override_where()
+    certifi.core.where = override_where
+
+    # delay importing until after where() has been replaced
+    import requests.utils
+    import requests.adapters
+    # replace these variables in case these modules were
+    # imported before we replaced certifi.core.where
+    requests.utils.DEFAULT_CA_BUNDLE_PATH = override_where()
+    requests.adapters.DEFAULT_CA_BUNDLE_PATH = override_where()
 
 
 
@@ -43,10 +61,15 @@ class MyWatermark:
         self.folder_save_path = pSaveFolderPath
     
     def watermark(self, pImageTitle):
+
         #Image
         image_file_path = self.folder_path + '/' + pImageTitle
         img = PIL.Image.open(image_file_path)
         my_height, my_width = img.size
+        
+        print("Imagen a Watermark: ", image_file_path)
+        print("Logo Path", self.watermark_path)
+
 
         #Logo
         #logo_path = '../watermark/logo_w_letters.png'   #Path del Logo 
@@ -124,11 +147,11 @@ class MyCompressor:
         except tinify.ServerError:
             print("Temporary issue with the Tinify API.")
             return False
-        except tinify.ConnectionError:
-            print("A network connection error occurred.")
+        except tinify.ConnectionError as e:
+            print("A network connection error occurred.\n", e)
             return False
-        except Exception:
-            print("Something else went wrong, unrelated to the Tinify API.")
+        except Exception  as e:
+            print("Something else went wrong, unrelated to the Tinify API.\n",e)
             return False
 
     #Returns the number of compressions left using the api
@@ -194,13 +217,14 @@ class MyCompressor:
 # cmprssr = MyCompressor("", "")
 
 class MyFileHandler:
+    _file_selection_dialog = "Select Folder"
 
     def openFolder(self):
 
         #Get Image Folder Path
         # image_folder_Path = self.get_path()
         
-        image_folder_Path = filechooser.choose_dir(title="Select a folder")
+        image_folder_Path = filechooser.choose_dir(title="Select a Folder")
 
         if image_folder_Path is None:
             return (0,0)
@@ -210,45 +234,12 @@ class MyFileHandler:
 
         #Check if path exists
         return (image_folder_Path[0], save_directory)
+
     
 
     def newFolder(self, dir_path):
         if not os.path.exists( dir_path ):
             os.makedirs(dir_path, exist_ok=False)
-
-    
-
-
-
-
-
-def openFile():
-    
-    #Get Directory Path 
-    directory_Path = filedialog.askdirectory()
-    
-    #Output Path 
-    save_directory =  os.path.dirname(directory_Path) + "/ready_to_upload"
-
-    #Check if path exists
-    if not os.path.exists( save_directory ):
-        os.makedirs(save_directory, exist_ok=False)
-
-    
-    wtmrk.folder_path = save_directory
-    wtmrk.folder_save_path = save_directory
-
-    cmprssr.folder_path = directory_Path
-    cmprssr.folder_save_path = save_directory
-
-    cmprssr.planUsageLeft(500)
-    print("Compressing Images")
-    cmprssr.bulkCompressing()
-    
-    print("Watermarking Images")
-    wtmrk.bulkWatermark()
-
-
 
 
 #This Class controls the main page of the app 
@@ -257,7 +248,7 @@ class PicturessMainPage(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.watermark_path = self.resource_path("logo_w_letters.png", True)
+        self.watermark_path = self.resource_path("logo_w_letters.png", False)
         self.watermark_instance = MyWatermark("","", self.watermark_path)
         self.comprssor_instance = MyCompressor("", "")
 
@@ -311,6 +302,7 @@ class PicturessMainPage(BoxLayout):
     
     def find_Image_folder(self):
         open_folder, save_folder = self.file_handler_instance.openFolder() 
+        #open_folder, save_folder = ('/Users/d4n11083/Desktop/testImages','/Users/d4n11083/Desktop/ready_to_upload')
 
         if open_folder != 0 :
 
@@ -325,6 +317,11 @@ class PicturessMainPage(BoxLayout):
             # print(open_folder, "OMG", save_folder)
         else:
             print("No eligió ningún folder")
+
+    
+    @mainthread
+    def find_image_folder_aux(self, x):
+        print(x)
 
     def start(self):
         print("Starting")
@@ -341,7 +338,7 @@ class PicturessMainPage(BoxLayout):
             # self.start_aux()
 
         else:
-            print("You must pick the f")
+            print("You must pick the folder")
             self.btns_enable_compression = True
             self.delete_path()
             self.call_pops("Wait! :D", "You need to select a folder with images first.")
@@ -390,18 +387,8 @@ class PicturessMainPage(BoxLayout):
     
 #App Class
 class PicturessApp(App):
+    icon = '../images/logo.ico'
     pass
 
 #Runs the app 
 PicturessApp().run()
-
-
-
-
-
-
-
-# window = Tk()
-# button = Button(text="Open",command=openFile)
-# button.pack()
-# window.mainloop()
