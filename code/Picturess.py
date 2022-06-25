@@ -4,7 +4,7 @@ import PIL
 from PIL import Image
 
 #plyer
-import plyer.platforms.macosx.filechooser
+import plyer.platforms.win.filechooser
 from plyer import filechooser
 
 
