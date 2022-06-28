@@ -4,10 +4,9 @@ import PIL
 from PIL import Image
 
 #plyer
-import plyer.platforms.win.filechooser
+import plyer.platforms.macosx.filechooser
+#import plyer.platforms.win.filechooser
 from plyer import filechooser
-
-
 
 #TinyPng
 from tinify import tinify
@@ -27,6 +26,7 @@ import sys
 import glob
 import concurrent.futures
 
+
 def override_where():
     """ overrides certifi.core.where to return actual location of cacert.pem"""
     # change this to match the location of cacert.pem
@@ -34,7 +34,6 @@ def override_where():
     base_path = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(base_path, cert_path)
     
-
 
 # is the program compiled?
 if hasattr(sys, "frozen"):
@@ -61,6 +60,8 @@ class MyWatermark:
         self.folder_save_path = pSaveFolderPath
     
     def watermark(self, pImageTitle):
+        logo_size_x_y = 0
+    
 
         #Image
         image_file_path = self.folder_path + '/' + pImageTitle
@@ -70,11 +71,15 @@ class MyWatermark:
         print("Imagen a Watermark: ", image_file_path)
         print("Logo Path", self.watermark_path)
 
+        if(my_height < my_width):
+            logo_size_x_y = int(my_height * 0.25) #Logo will be 20% of the  image's height 
+        else:
+            logo_size_x_y = int(my_width * 0.25)
 
         #Logo
         #logo_path = '../watermark/logo_w_letters.png'   #Path del Logo 
         logo_path = self.watermark_path
-        logo_size = (300,300)                           #Logo Size
+        logo_size = (logo_size_x_y,logo_size_x_y)                           #Logo Size
         logo_img = PIL.Image.open(logo_path)            #Logo 
         logo_img.thumbnail(logo_size)                   #Logo resize
 
@@ -248,7 +253,7 @@ class PicturessMainPage(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.watermark_path = self.resource_path("logo_w_letters.png", False)
+        self.watermark_path = self.resource_path("logo_w_letters.png", True)
         self.watermark_instance = MyWatermark("","", self.watermark_path)
         self.comprssor_instance = MyCompressor("", "")
 
