@@ -1,11 +1,11 @@
 #PIL
-from webbrowser import MacOSX
 import PIL
 from PIL import Image
 
 #plyer
 import plyer.platforms.macosx.filechooser
 #import plyer.platforms.win.filechooser
+
 from plyer import filechooser
 
 #TinyPng
@@ -230,8 +230,11 @@ class MyFileHandler:
         # image_folder_Path = self.get_path()
         
         image_folder_Path = filechooser.choose_dir(title="Select a Folder")
+        
+        print('Response filechooser:')
+        print(image_folder_Path)
 
-        if image_folder_Path is None:
+        if image_folder_Path is None or image_folder_Path == []:
             return (0,0)
 
         #Save Folder Path
@@ -307,7 +310,6 @@ class PicturessMainPage(BoxLayout):
     
     def find_Image_folder(self):
         open_folder, save_folder = self.file_handler_instance.openFolder() 
-        #open_folder, save_folder = ('/Users/d4n11083/Desktop/testImages','/Users/d4n11083/Desktop/ready_to_upload')
 
         if open_folder != 0 :
 
@@ -392,7 +394,8 @@ class PicturessMainPage(BoxLayout):
     
 #App Class
 class PicturessApp(App):
-    icon = '../images/logo.ico'
+    #uncomment on production 
+    #icon = 'logo.ico'
     pass
 
 #Runs the app 
