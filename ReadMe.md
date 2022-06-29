@@ -106,31 +106,47 @@ Here's a blank template to get started: To avoid retyping too much info. Do a se
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
 To get a local copy up and running follow these simple example steps.
+
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
+Before runnig the .py file, you need to install these libraries using pip. 
+
+* tinify 
   ```sh
-  npm install npm@latest -g
+  pip install --upgrade tinify
   ```
+
+* Pillow  
+  ```sh
+  pip install Pillow
+  ```
+
+* Plyer  
+  ```sh
+  pip install plyer
+  ```
+
+* Tinify 
+   
+  For this library, you should follow the [instructions listed on their webpage](https://kivy.org/doc/stable/gettingstarted/installation.html)
+
+
+
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
+1. Get a free API Key at [https://tinypng.com/developers](https://tinypng.com/developers)
 2. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/jochaes/repo_picturess.git
    ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
+3. Install Pip libraries listed above 
+
+4. Enter your API in `Picturess.py`
    ```js
-   const API_KEY = 'ENTER YOUR API';
+    API_KEY = 'ENTER YOUR API';
    ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -151,15 +167,13 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+- [ ] Compress images using the tinify API
+- [ ] Option to watermark images with a company logo
+- [ ] Build a nice GUI using Kivy
 
 See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-
 
 
 <!-- CONTRIBUTING -->
@@ -167,7 +181,7 @@ See the [open issues](https://github.com/github_username/repo_name/issues) for a
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+If you have a suggestion that would make this project better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!
 
 1. Fork the Project
@@ -192,7 +206,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+Josué Chaves Araya - [@twitter_handle](https://twitter.com/twitter_handle) - josuedaniel.cha@gmail.com
 
 Project Link: [https://github.com/jochaes/picturess](https://github.com/jochaes/Picturess)
 
