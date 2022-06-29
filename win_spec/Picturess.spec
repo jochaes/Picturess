@@ -1,5 +1,11 @@
 from kivy_deps import sdl2, glew
 
+#to acive virtual enviromnet on windows 
+# source virt/Scripts/activate
+
+#To run the specs 
+#pyinstaller Picturess.spec -y
+
 # -*- mode: python ; coding: utf-8 -*-
 
 
