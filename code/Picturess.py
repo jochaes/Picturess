@@ -5,7 +5,6 @@ from PIL import Image
 #plyer
 import plyer.platforms.macosx.filechooser
 #import plyer.platforms.win.filechooser
-
 from plyer import filechooser
 
 #TinyPng
@@ -25,7 +24,6 @@ import os
 import sys
 import glob
 import concurrent.futures
-
 
 def override_where():
     """ overrides certifi.core.where to return actual location of cacert.pem"""
@@ -204,22 +202,7 @@ class MyCompressor:
                 print( "An unexpected error was found. Compression Cancelled" )
                 return 
 
-#https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file
 
-# def resource_path(relative_path):
-#     try:
-#         base_path = sys._MEIPASS
-#     except Exception:
-#         base_path = os.path.abspath(".")
-#     return os.path.join(base_path, relative_path)
-
-
-# # wtmarkPath = resource_path("logo_w_letters.png")
-# wtmarkPath = "../watermark/logo_w_letters.png"
-
-# #messagebox.showerror('Python Error', wtmarkPath)
-# wtmrk = MyWatermark("","", wtmarkPath)
-# cmprssr = MyCompressor("", "")
 
 class MyFileHandler:
     _file_selection_dialog = "Select Folder"
