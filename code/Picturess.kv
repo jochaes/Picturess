@@ -1,5 +1,22 @@
+##:kivy !
+
+
+
 PicturessMainPage:
 
+<ChangeKeyPopup>:
+    title: "Change API Key"
+    auto_dismiss: True
+    size_hint: 0.5, 0.2
+    TextInput:
+        text: 'Write Api Key'
+        focus: True
+        multiline: False
+        on_text_validate: root.hello(self)
+
+
+
+#App
 <PicturessMainPage>:
     orientation:"vertical"
     canvas:
@@ -8,20 +25,58 @@ PicturessMainPage:
         Rectangle:
             pos: self.pos
             size: self.size
-    #NavBar
     RelativeLayout:
         size_hint: 1,0.1
-        #Picturess logo
+#_____________________________________NavBar-Start_____________________________________
         BoxLayout:
             orientation:"horizontal"
             size_hint: 1,1
+            
+            #Picturess logo
+
             Label:
-                size_hint: 1,1
+                size_hint: .1,.5
                 text:"Picturess"
                 color: 0,0,0,1
-#            Button:
-#                size_hint: 0.7,1
-#                text:"Change Api Key"
+                pos_hint:{"center_y": .5}
+
+            # Button:
+            #     size_hint: .3,1
+            #     background_normal: 'normal.png'
+
+            Button:
+                size_hint: .3,.5
+                text:"Change Api Key"
+                ids: {"btn_id":"btn_change_api_key"}
+                
+                on_release: root.on_button_click(self)
+                #on_release: Factory.MyPopup().open()
+
+                disabled: not root.btns_enable_compression
+                pos_hint:{"center_y": .5}
+
+            Label:
+                size_hint: .3,.5
+                pos_hint:{"center_y": .5}
+                text_size: self.size
+                halign: 'left'
+                valign: 'middle'
+                color: 0,0,0,1
+                text:root.label_api_messages
+                
+    
+            Label:
+                size_hint: .3,.5
+                pos_hint:{"center_y": .5}
+                text_size: self.size
+                halign: 'left'
+                valign: 'middle'
+                color: 0,0,0,1
+                text:root.label_app_alerts
+
+
+#_____________________________________NavBar-Finish_____________________________________
+
 
 
     #Bottomlayout
@@ -29,7 +84,7 @@ PicturessMainPage:
         size_hint: 1,0.9
         orientation:"horizontal"
 
-        #Left Option Ba
+#_____________________________________Options_Bar-Start_____________________________________
         StackLayout:
             canvas:
                 Color:
@@ -50,6 +105,7 @@ PicturessMainPage:
                 size_hint: 1,.2
                 text:"Select Folder"
                 ids: {"btn_id":"open_folder_btn"}
+
                 on_release: root.on_button_click(self)
                 disabled: not root.btns_enable_compression
             Label:
@@ -63,9 +119,9 @@ PicturessMainPage:
                 #text:"Watermark?"
                 on_active: root.on_switch_active(self)
                 disabled: not root.btns_enable_compression
+#_____________________________________Options_Bar-Finish_____________________________________
 
 
-        #Right Option Bar 
         BoxLayout:
             size_hint: .7,1
             orientation:"vertical"
@@ -89,7 +145,8 @@ PicturessMainPage:
                     color: 0,0,0,1
                     text:root.lab_right_compr_inf
                 
-            
+#_____________________________________Action_Bar-Start_____________________________________
+
             BoxLayout:
                 size_hint: 1,.2
                 orientation:"horizontal"
@@ -115,7 +172,5 @@ PicturessMainPage:
                     ids: {"btn_id":"start_image_compression"}
                     on_release: root.on_button_click(self)
                     disabled: not root.btns_enable_compression
+#_____________________________________Action_Bar-Finish_____________________________________
 
-
-
-            

@@ -1,4 +1,5 @@
 #PIL
+import imp
 import PIL
 from PIL import Image
 
@@ -19,12 +20,16 @@ from kivy.clock import Clock, mainthread
 from kivy.properties import StringProperty, BooleanProperty
 from kivy.metrics import dp
 from kivy.uix.button import Button
+from kivy.uix.textinput import TextInput
+from kivy.factory import Factory
+
 
 #os
 import os 
 import sys
 import glob
 import concurrent.futures
+import json
 
 
 def override_where():
@@ -107,22 +112,26 @@ class MyWatermark:
             
 
 class MyCompressor:
-    tinify.key = "hlH2Tr7d0p0gpnPsypV53Klp5kR3pbPv"
-    PLAN_TOTAL_USAGE = 500
-    CMPCODE ="cmp-" 
 
-    def __init__(self, pFolderPath, pSaveFolderPath):
+
+    def __init__(self, pFolderPath, pSaveFolderPath, pAPIKey):
         self.folder_path = pFolderPath
         self.folder_save_path = pSaveFolderPath
+        self.API_KEY = pAPIKey
+        
+        print("MYCOMPRESSOR INIT - API_KEY: ",pAPIKey)
 
         try:
-            tinify.key = "hlH2Tr7d0p0gpnPsypV53Klp5kR3pbPv"
+            tinify.key = self.API_KEY
             tinify.validate()
         except tinify.Error:
         # Validation of API key failed.
             print ("Validation Error")
             pass
-
+    
+    API_KEY = ""
+    PLAN_TOTAL_USAGE = 500
+    CMPCODE ="cmp-" 
 
     #input_path = Path of the image to compress 
     #output_path = To store the compressed image 
@@ -243,11 +252,32 @@ class MyFileHandler:
         #Check if path exists
         return (image_folder_Path[0], save_directory)
 
-    
-
     def newFolder(self, dir_path):
         if not os.path.exists( dir_path ):
             os.makedirs(dir_path, exist_ok=False)
+
+    #Opens a JSON file and returns the data 
+    def openJsonFile(self):
+
+        jsonPath = os.path.dirname(os.path.abspath(__file__)) + "/data.json"
+        file = open(jsonPath)
+        data = json.load(file)
+        file.close()
+        return data    
+
+class ChangeKeyPopup(Popup):
+    apikey = ""
+
+    def hello(self, instance):
+        self.apikey = instance.text
+        print("ChangeKeyPopup: ", instance.text )
+        self.dismiss()
+
+    def deleteApiKey(self, instance):
+        self.apikey =  ""
+
+
+
 
 
 #This Class controls the main page of the app 
@@ -255,19 +285,25 @@ class PicturessMainPage(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.file_handler_instance = MyFileHandler()
 
         self.watermark_path = self.resource_path("logo_w_letters.png", True)
         self.watermark_instance = MyWatermark("","", self.watermark_path)
-        self.comprssor_instance = MyCompressor("", "")
-
-        self.file_handler_instance = MyFileHandler()
+        
+        self.comprssor_instance = MyCompressor("", "", self.loadAPIKey())
         self.executor = concurrent.futures.ThreadPoolExecutor()
-
+        self.change_key_popup = ChangeKeyPopup();
+    
+    
+    change_key_popup = None
     file_handler_instance = None
     watermark_instance = None
     comprssor_instance = None
     watermark_path     =""
     executor = None
+
+    label_api_messages = StringProperty("API Messages") 
+    label_app_alerts = StringProperty("APP Alerts") 
 
     lab_left_images = StringProperty("Images")
     lab_left_waterm = StringProperty("Watermark Images?")
@@ -280,6 +316,10 @@ class PicturessMainPage(BoxLayout):
 
     btns_enable_compression = BooleanProperty(True)
     compress_with_watermark = True 
+
+    def loadAPIKey(self):
+        data = self.file_handler_instance.openJsonFile()
+        return data['tinify_api_key']
 
     def resource_path(self, relative_path, testPath):
         if testPath:
@@ -299,7 +339,6 @@ class PicturessMainPage(BoxLayout):
     def on_button_click(self, widget):
         btn_id = widget.ids["btn_id"]
         
-
         if btn_id == "open_folder_btn":
             print("Open Folder")
             self.find_Image_folder()
@@ -307,6 +346,11 @@ class PicturessMainPage(BoxLayout):
         if btn_id == "start_image_compression":
             print("Start Compression")
             self.start()
+
+        if btn_id == "btn_change_api_key":
+            print("Change API KEY")
+            self.pop_change_api_key("Change API key")
+
     
     def find_Image_folder(self):
         open_folder, save_folder = self.file_handler_instance.openFolder() 
@@ -380,6 +424,20 @@ class PicturessMainPage(BoxLayout):
 
         self.comprssor_instance.folder_path = ""
         self.comprssor_instance.folder_save_path = ""
+    
+    def on_enter(self,instance, value):
+        print("PICTURESS_APP ON_ENTER VALUE:", value)
+
+    def pop_change_api_key(self,ptitle):
+        # textinput = TextInput(focus=True, multiline=False)
+        # textinput.bind(on_text_validate=self.on_enter)
+
+        # pop=Popup(title=ptitle,auto_dismiss=True,content=textinput,size_hint=(.5, .2))
+        # pop.open()
+        Factory.ChangeKeyPopup.open(self.change_key_popup)
+
+        print("pop_change_api_key: ",self.change_key_popup.apikey)
+
 
 
     def call_pops(self,tit,conten):
@@ -387,9 +445,6 @@ class PicturessMainPage(BoxLayout):
         pop=Popup(title=tit,content=cont,size_hint=(.5, .3),auto_dismiss=True)
         pop.open()
         cont.bind(on_press=pop.dismiss)
-
-
-
 
     
 #App Class
