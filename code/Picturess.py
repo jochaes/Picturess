@@ -1,7 +1,9 @@
+#KEY = hlH2Tr7d0p0gpnPsypV53Klp5kR3pbPv
 #PIL
-import imp
+
 import PIL
 from PIL import Image
+import kivy
 
 #plyer
 import plyer.platforms.macosx.filechooser
@@ -10,7 +12,7 @@ import plyer.platforms.macosx.filechooser
 from plyer import filechooser
 
 #TinyPng
-from tinify import tinify
+from tinify import AccountError, tinify
 
 #Kivy
 from kivy.app import App
@@ -21,6 +23,7 @@ from kivy.properties import StringProperty, BooleanProperty
 from kivy.metrics import dp
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
+from kivy.uix.label import Label
 from kivy.factory import Factory
 
 
@@ -31,8 +34,8 @@ import glob
 import concurrent.futures
 import json
 
-
-def override_where():
+#--------------------------------- Overrrides the certificate location for the request library -----------------------
+def overrideWhere():
     """ overrides certifi.core.where to return actual location of cacert.pem"""
     # change this to match the location of cacert.pem
     cert_path = "certifi/cacert.pem"
@@ -44,16 +47,17 @@ def override_where():
 if hasattr(sys, "frozen"):
     import certifi.core
 
-    os.environ["REQUESTS_CA_BUNDLE"] = override_where()
-    certifi.core.where = override_where
+    os.environ["REQUESTS_CA_BUNDLE"] = overrideWhere()
+    certifi.core.where = overrideWhere
 
     # delay importing until after where() has been replaced
     import requests.utils
     import requests.adapters
     # replace these variables in case these modules were
     # imported before we replaced certifi.core.where
-    requests.utils.DEFAULT_CA_BUNDLE_PATH = override_where()
-    requests.adapters.DEFAULT_CA_BUNDLE_PATH = override_where()
+    requests.utils.DEFAULT_CA_BUNDLE_PATH = overrideWhere()
+    requests.adapters.DEFAULT_CA_BUNDLE_PATH = overrideWhere()
+#--------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -105,31 +109,34 @@ class MyWatermark:
         img.save(save_path)
     
     def bulkWatermark(self):
-        dirArray = [ os.path.basename(f) for f in glob.glob(self.folder_path+"/*.*")]
-        for i,image in enumerate(dirArray):
-            print( "Watermarking %d out of %d"%((i+1), len(dirArray)) )
+        dir_Array = [ os.path.basename(f) for f in glob.glob(self.folder_path+"/*.*")]
+        for i,image in enumerate(dir_Array):
+            print( "Watermarking %d out of %d"%((i+1), len(dir_Array)) )
             self.watermark(image)
             
 
 class MyCompressor:
 
-
-    def __init__(self, pFolderPath, pSaveFolderPath, pAPIKey):
+    def __init__(self, pFolderPath, pSaveFolderPath):
         self.folder_path = pFolderPath
         self.folder_save_path = pSaveFolderPath
-        self.API_KEY = pAPIKey
-        
-        print("MYCOMPRESSOR INIT - API_KEY: ",pAPIKey)
 
+    def validateKey(self, pKeyToValidate):
         try:
-            tinify.key = self.API_KEY
+            tinify.key = pKeyToValidate
             tinify.validate()
-        except tinify.Error:
+        except tinify.Error as e:
         # Validation of API key failed.
-            print ("Validation Error")
-            pass
+            error_string  = "Validation Error: "+ e.message
+            print (error_string)
+            return (False, error_string, pKeyToValidate)
+        return (True, "", pKeyToValidate)
+
     
-    API_KEY = ""
+    def setAPIKey(self, pAPIKEY):
+        self.api_key = pAPIKEY
+
+    api_key = ""
     PLAN_TOTAL_USAGE = 500
     CMPCODE ="cmp-" 
 
@@ -231,51 +238,65 @@ class MyCompressor:
 # cmprssr = MyCompressor("", "")
 
 class MyFileHandler:
-    _file_selection_dialog = "Select Folder"
+    #_file_selection_dialog = "Select Folder"
 
     def openFolder(self):
 
         #Get Image Folder Path
-        # image_folder_Path = self.get_path()
+        # image_folder_path = self.get_path()
         
-        image_folder_Path = filechooser.choose_dir(title="Select a Folder")
+        image_folder_path = filechooser.choose_dir(title="Select a Folder")
         
         print('Response filechooser:')
-        print(image_folder_Path)
+        print(image_folder_path)
 
-        if image_folder_Path is None or image_folder_Path == []:
+        if image_folder_path is None or image_folder_path == []:
             return (0,0)
 
         #Save Folder Path
-        save_directory =  os.path.dirname(image_folder_Path[0]) + "/ready_to_upload"
+        save_directory =  os.path.dirname(image_folder_path[0]) + "/ready_to_upload"
 
         #Check if path exists
-        return (image_folder_Path[0], save_directory)
+        return (image_folder_path[0], save_directory)
 
-    def newFolder(self, dir_path):
-        if not os.path.exists( dir_path ):
-            os.makedirs(dir_path, exist_ok=False)
+    def newFolder(self, pDirectoryPath):
+        if not os.path.exists( pDirectoryPath ):
+            os.makedirs(pDirectoryPath, exist_ok=False)
+
+    def openJsonFile(self, pOpenMode):
+        json_path = os.path.dirname(os.path.abspath(__file__)) + "/data.json"
+        file_pointer = open(json_path, pOpenMode)
+        return file_pointer
+
+    def closeJsonFile(self, pFilePointer):
+        pFilePointer.close()
+
 
     #Opens a JSON file and returns the data 
-    def openJsonFile(self):
-
-        jsonPath = os.path.dirname(os.path.abspath(__file__)) + "/data.json"
-        file = open(jsonPath)
-        data = json.load(file)
-        file.close()
+    def loadJsonData(self):
+        file_pointer = self.openJsonFile('r')
+        data = json.load(file_pointer)
+        self.closeJsonFile(file_pointer)
         return data    
+    
+    def changeJsonFileKey(self, pNewAPIKey):
+        data = self.loadJsonData()
+        data['tinify_api_key'] = pNewAPIKey
 
-class ChangeKeyPopup(Popup):
-    apikey = ""
+        file_pointer = self.openJsonFile('w')
+        json.dump(data, file_pointer)
+        self.closeJsonFile(file_pointer)
 
-    def hello(self, instance):
-        self.apikey = instance.text
-        print("ChangeKeyPopup: ", instance.text )
-        self.dismiss()
 
-    def deleteApiKey(self, instance):
-        self.apikey =  ""
+# class ChangeKeyPopup(Popup):
 
+#     def changeApiKey(self, pInstance):
+#         self.api_key = pInstance.text
+#         print("ChangeKeyPopup: ", pInstance.text )
+#         self.dismiss()
+
+#     def deleteApiKey(self, instance):
+#         self.api_key =  ""
 
 
 
@@ -285,23 +306,49 @@ class PicturessMainPage(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.file_handler_instance = MyFileHandler()
+        self.FILE_HANDLER_INSTANCE = MyFileHandler()
 
-        self.watermark_path = self.resource_path("logo_w_letters.png", True)
-        self.watermark_instance = MyWatermark("","", self.watermark_path)
-        
-        self.comprssor_instance = MyCompressor("", "", self.loadAPIKey())
-        self.executor = concurrent.futures.ThreadPoolExecutor()
-        self.change_key_popup = ChangeKeyPopup();
+        self.watermark_path = self.resourcePath("logo_w_letters.png", True)
+
+        self.WATERMARK_INSTANCE = MyWatermark("","", self.watermark_path)
+        self.COMPRESSOR_INSTANCE = MyCompressor("", "")
+        self.EXECUTOR = concurrent.futures.ThreadPoolExecutor()
+
+        #Starts Thread 
+        self.lab_right_compr_eta = "Validatiing Key"
+        future = self.EXECUTOR.submit(self.validateKey)
+        future.add_done_callback( self.validateKeyAux)
+
+    def validateKey(self):
+        #Validate API KEY
+        stored_api_key = self.loadAPIKey()
+        validation = self.COMPRESSOR_INSTANCE.validateKey(stored_api_key)
+        return validation
+
+    @mainthread
+    def validateKeyAux(self, pX):
+        result = pX.result()
+
+        if result[0]:
+            self.COMPRESSOR_INSTANCE.setAPIKey(result[2])
+            self.btns_enable_compression = True
+
+        else:
+            self.btns_enable_compression = False
+            self.callPops("Error Validating API KEY", "Please set a correct API KEY First")
+            print("validateKeyAux: ",pX.result())
+
+
     
     
-    change_key_popup = None
-    file_handler_instance = None
-    watermark_instance = None
-    comprssor_instance = None
-    watermark_path     =""
-    executor = None
-
+    #Utilitary Objects 
+    CHANGE_KEY_POPUP_INSTANCE = None
+    FILE_HANDLER_INSTANCE = None
+    WATERMARK_INSTANCE = None
+    COMPRESSOR_INSTANCE = None
+    EXECUTOR = None
+    
+    #Kivy Label Messages
     label_api_messages = StringProperty("API Messages") 
     label_app_alerts = StringProperty("APP Alerts") 
 
@@ -313,16 +360,17 @@ class PicturessMainPage(BoxLayout):
 
     lab_right_save_fldr = StringProperty("Images are taken from:")
     
-
-    btns_enable_compression = BooleanProperty(True)
+    #Variables 
+    btns_enable_compression = BooleanProperty(False)
     compress_with_watermark = True 
+    watermark_path     =""
 
     def loadAPIKey(self):
-        data = self.file_handler_instance.openJsonFile()
+        data = self.FILE_HANDLER_INSTANCE.loadJsonData()
         return data['tinify_api_key']
 
-    def resource_path(self, relative_path, testPath):
-        if testPath:
+    def resourcePath(self, pRelativePath, pTestPath):
+        if pTestPath:
             py_file_path = os.path.dirname(os.path.abspath(__file__))
             watermark_path =  os.path.dirname(py_file_path) + "/watermark/logo_w_letters.png"
             return watermark_path
@@ -330,18 +378,18 @@ class PicturessMainPage(BoxLayout):
             base_path = sys._MEIPASS
         except Exception:
             base_path = os.path.abspath(".")
-        return os.path.join(base_path, relative_path)
+        return os.path.join(base_path, pRelativePath)
 
-    def on_switch_active(self, widget):
-        self.compress_with_watermark = widget.active
-        print("Watermark? ", widget.active)
+    def onSwitchActive(self, pWidget):
+        self.compress_with_watermark = pWidget.active
+        print("Watermark? ", pWidget.active)
 
-    def on_button_click(self, widget):
-        btn_id = widget.ids["btn_id"]
+    def onButtonClick(self, pWidget):
+        btn_id = pWidget.ids["btn_id"]
         
         if btn_id == "open_folder_btn":
             print("Open Folder")
-            self.find_Image_folder()
+            self.findImageFolder()
 
         if btn_id == "start_image_compression":
             print("Start Compression")
@@ -349,18 +397,18 @@ class PicturessMainPage(BoxLayout):
 
         if btn_id == "btn_change_api_key":
             print("Change API KEY")
-            self.pop_change_api_key("Change API key")
+            self.popChangeAPIKey("Change API key")
 
     
-    def find_Image_folder(self):
-        open_folder, save_folder = self.file_handler_instance.openFolder() 
+    def findImageFolder(self):
+        open_folder, save_folder = self.FILE_HANDLER_INSTANCE.openFolder() 
 
         if open_folder != 0 :
 
-            self.watermark_instance.folder_path = save_folder
-            self.watermark_instance.folder_save_path = save_folder
-            self.comprssor_instance.folder_path = open_folder
-            self.comprssor_instance.folder_save_path = save_folder
+            self.WATERMARK_INSTANCE.folder_path = save_folder
+            self.WATERMARK_INSTANCE.folder_save_path = save_folder
+            self.COMPRESSOR_INSTANCE.folder_path = open_folder
+            self.COMPRESSOR_INSTANCE.folder_save_path = save_folder
 
             self.lab_right_compr_inf = "Images will be stored at: \n " + save_folder
             self.lab_right_save_fldr = "Images are taken from: \n "+ open_folder
@@ -371,78 +419,95 @@ class PicturessMainPage(BoxLayout):
 
     
     @mainthread
-    def find_image_folder_aux(self, x):
-        print(x)
+    def findImageFolderAux(self, pX):
+        print(pX)
 
     def start(self):
         print("Starting")
         self.btns_enable_compression = False
-        save_path = self.watermark_instance.folder_save_path
+
+        save_path = self.WATERMARK_INSTANCE.folder_save_path
         if( save_path != "" ):
             #Create new directory to save images
-            self.file_handler_instance.newFolder(save_path)
+            self.FILE_HANDLER_INSTANCE.newFolder(save_path)
             
             #Starts Thread 
             self.lab_right_compr_eta = "Processing Images"
-            future = self.executor.submit(self.start_aux)
-            future.add_done_callback( self.finish_aux)
-            # self.start_aux()
+            future = self.EXECUTOR.submit(self.startAux)
+            future.add_done_callback( self.finishAux)
+            # self.startAux()
 
         else:
             print("You must pick the folder")
             self.btns_enable_compression = True
-            self.delete_path()
-            self.call_pops("Wait! :D", "You need to select a folder with images first.")
+            self.deletePath()
+            self.callPops("Wait! :D", "You need to select a folder with images first.")
     
     
-    def start_aux(self):
-        self.comprssor_instance.planUsageLeft(500)
+    def startAux(self):
+        self.COMPRESSOR_INSTANCE.planUsageLeft(500)
         print("Compressing Images")
 
-        self.comprssor_instance.bulkCompressing()
+        self.COMPRESSOR_INSTANCE.bulkCompressing()
 
         if( self.compress_with_watermark ):
             print("Watermarking Images")
-            self.watermark_instance.bulkWatermark()
+            self.WATERMARK_INSTANCE.bulkWatermark()
 
     @mainthread
-    def finish_aux(self, x):
-        print(x)
+    def finishAux(self, pX):
+        print(pX)
         self.lab_right_compr_eta = "Waiting"
         self.btns_enable_compression = True
         self.lab_right_compr_inf = "Images will be stored at:" 
         self.lab_right_save_fldr = "Images are taken from:"
-        self.delete_path()
-        self.call_pops("Done", "Your Images are ready")
+        self.deletePath()
+        self.callPops("Done", "Your Images are ready")
 
 
 
-    def delete_path(self):
+    def deletePath(self):
         
-        self.watermark_instance.folder_path = ""
-        self.watermark_instance.folder_save_path = ""
+        self.WATERMARK_INSTANCE.folder_path = ""
+        self.WATERMARK_INSTANCE.folder_save_path = ""
 
-        self.comprssor_instance.folder_path = ""
-        self.comprssor_instance.folder_save_path = ""
+        self.COMPRESSOR_INSTANCE.folder_path = ""
+        self.COMPRESSOR_INSTANCE.folder_save_path = ""
     
-    def on_enter(self,instance, value):
-        print("PICTURESS_APP ON_ENTER VALUE:", value)
+    def onEnterChangeKey(self, pInstance):
+        newKey = pInstance.text
+        popup = pInstance.parent.parent.parent.parent
+        popup.dismiss()
+        print("PICTURESS_APP ON_ENTER VALUE:",newKey)
+        self.FILE_HANDLER_INSTANCE.changeJsonFileKey(newKey)
 
-    def pop_change_api_key(self,ptitle):
-        # textinput = TextInput(focus=True, multiline=False)
-        # textinput.bind(on_text_validate=self.on_enter)
-
-        # pop=Popup(title=ptitle,auto_dismiss=True,content=textinput,size_hint=(.5, .2))
-        # pop.open()
-        Factory.ChangeKeyPopup.open(self.change_key_popup)
-
-        print("pop_change_api_key: ",self.change_key_popup.apikey)
-
+        #Starts Thread 
+        self.lab_right_compr_eta = "Validating Key"
+        future = self.EXECUTOR.submit(self.validateKey)
+        future.add_done_callback( self.validateKeyAux)
 
 
-    def call_pops(self,tit,conten):
-        cont=Button(text=conten)
-        pop=Popup(title=tit,content=cont,size_hint=(.5, .3),auto_dismiss=True)
+    def popChangeAPIKey(self,pTitle):
+        textinput = TextInput( multiline=False)
+        textinput.bind(on_text_validate=self.onEnterChangeKey)
+
+        label   = Label(text="Write the new Key and hit enter to validate. \nOr click outside to dismiss",halign= 'left')
+
+        box_layout = BoxLayout(orientation="vertical", size_hint= (1,0.9))
+        box_layout.add_widget(textinput)
+        box_layout.add_widget(label)
+
+        pop=Popup(content=box_layout,title=pTitle,auto_dismiss=True,size_hint=(.5, .25))
+        pop.open()
+
+        #Factory.ChangeKeyPopup.open(self.CHANGE_KEY_POPUP_INSTANCE)
+        #print("popChangeAPIKey: ",self.CHANGE_KEY_POPUP_INSTANCE.api_key)
+
+
+
+    def callPops(self,pTitle,pConten):
+        cont=Button(text=pConten)
+        pop=Popup(title=pTitle,content=cont,size_hint=(.5, .3),auto_dismiss=True)
         pop.open()
         cont.bind(on_press=pop.dismiss)
 

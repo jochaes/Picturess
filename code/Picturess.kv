@@ -1,20 +1,9 @@
 ##:kivy !
 
 
+#:import Factory kivy.factory.Factory
 
 PicturessMainPage:
-
-<ChangeKeyPopup>:
-    title: "Change API Key"
-    auto_dismiss: True
-    size_hint: 0.5, 0.2
-    TextInput:
-        text: 'Write Api Key'
-        focus: True
-        multiline: False
-        on_text_validate: root.hello(self)
-
-
 
 #App
 <PicturessMainPage>:
@@ -49,10 +38,8 @@ PicturessMainPage:
                 text:"Change Api Key"
                 ids: {"btn_id":"btn_change_api_key"}
                 
-                on_release: root.on_button_click(self)
-                #on_release: Factory.MyPopup().open()
-
-                disabled: not root.btns_enable_compression
+                on_release: root.onButtonClick(self)
+                #disabled: not root.btns_enable_compression
                 pos_hint:{"center_y": .5}
 
             Label:
@@ -106,7 +93,7 @@ PicturessMainPage:
                 text:"Select Folder"
                 ids: {"btn_id":"open_folder_btn"}
 
-                on_release: root.on_button_click(self)
+                on_release: root.onButtonClick(self)
                 disabled: not root.btns_enable_compression
             Label:
                 size_hint:1,.1
@@ -117,7 +104,7 @@ PicturessMainPage:
                 size_hint: 1,None
                 height:"20dp"
                 #text:"Watermark?"
-                on_active: root.on_switch_active(self)
+                on_active: root.onSwitchActive(self)
                 disabled: not root.btns_enable_compression
 #_____________________________________Options_Bar-Finish_____________________________________
 
@@ -170,7 +157,7 @@ PicturessMainPage:
                     size_hint: .4,1
                     text:"Start"
                     ids: {"btn_id":"start_image_compression"}
-                    on_release: root.on_button_click(self)
+                    on_release: root.onButtonClick(self)
                     disabled: not root.btns_enable_compression
 #_____________________________________Action_Bar-Finish_____________________________________
 
