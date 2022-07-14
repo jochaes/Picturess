@@ -384,6 +384,9 @@ class MyFileHandler:
         
         changeJsonFileKey()
             Modifies the key inside the json file 
+        
+        watermarkResourcePath(pIsProduction)
+            Returns the path of the watermak image 
     """
 
     def openFolder(self):
@@ -418,6 +421,27 @@ class MyFileHandler:
         """
         if not os.path.exists( pDirectoryPath ):
             os.makedirs(pDirectoryPath, exist_ok=False)
+
+    def watermarkResourcePath(self, pIsProduction):
+        """
+        Returns the path of the watermak image 
+
+        Long Description 
+
+        Parameters
+        ----------
+            pIsProduction : bool 
+                True for production path 
+                False for develepment path 
+        """
+        py_file_path = os.path.dirname(os.path.abspath(__file__))
+        watermark_path = os.path.dirname(py_file_path)
+
+        if pIsProduction:
+            watermark_path += "/logo_w_letters.png"
+        else:
+            watermark_path += "/watermark/logo_w_letters.png"
+        return watermark_path
 
     def openJsonFile(self, pOpenMode):
         """
@@ -516,9 +540,6 @@ class PicturessMainPage(BoxLayout):
         loadAPIKey()
             Returns the key inside the Json file 
         
-        resourcePath(pRelativePath,pTestPath)
-            Returns the path of the watermak image 
-        
         onSwitchActive(pWidget)
             Changes the option to watermark or not the compressed images
         
@@ -545,9 +566,10 @@ class PicturessMainPage(BoxLayout):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.watermark_path = self.resourcePath("logo_w_letters.png", True)
-
         self.FILE_HANDLER_INSTANCE = MyFileHandler()
+
+        self.watermark_path = self.FILE_HANDLER_INSTANCE.watermarkResourcePath(False)
+
         self.WATERMARK_INSTANCE = MyWatermark("","", self.watermark_path)
         self.COMPRESSOR_INSTANCE = MyCompressor("", "")
         self.EXECUTOR = concurrent.futures.ThreadPoolExecutor()
@@ -619,41 +641,6 @@ class PicturessMainPage(BoxLayout):
         """ Returns the key inside the Json file """
         data = self.FILE_HANDLER_INSTANCE.loadJsonData()
         return data['tinify_api_key']
-   
-    #ToDo:
-    #Move  the method resourcePath to the class MyFileHandler
-    #Change the function that works the same for production and development 
-    def resourcePath(self, pRelativePath, pTestPath):
-        """
-        Returns the path of the watermak image 
-
-        Long Description 
-
-        Parameters
-        ----------
-            pRelativePath : str 
-                The name of the file of the watermark image 
-            
-            pTestPath : bool
-                True for develeooment 
-                False for Distribution 
-
-        Raises / Output 
-        ------ 
-
-            RaisedError 
-                Description
-
-        """
-        if pTestPath:
-            py_file_path = os.path.dirname(os.path.abspath(__file__))
-            watermark_path =  os.path.dirname(py_file_path) + "/watermark/logo_w_letters.png"
-            return watermark_path
-        try:
-            base_path = sys._MEIPASS
-        except Exception:
-            base_path = os.path.abspath(".")
-        return os.path.join(base_path, pRelativePath)
 
     def onSwitchActive(self, pWidget):
         """
