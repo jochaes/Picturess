@@ -546,7 +546,7 @@ class PicturessMainPage(BoxLayout):
         onButtonClick(pWidget)
             Button click handler
         
-        findImageFolder() 
+        setAllDirectoryPaths() 
             Opens the filechooser and sets the images folder and the save folder
             for Mycompressor and MyWatermark
         
@@ -671,7 +671,7 @@ class PicturessMainPage(BoxLayout):
         
         if btn_id == "open_folder_btn":
             print("Open Folder")
-            self.findImageFolder()
+            self.setAllDirectoryPaths()
 
         if btn_id == "start_image_compression":
             print("Start Compression")
@@ -681,9 +681,8 @@ class PicturessMainPage(BoxLayout):
             print("Change API KEY")
             self.popChangeAPIKey("Change API key")
 
-    #ToDo
-    #Change the name of this method to: setFolders 
-    def findImageFolder(self):
+
+    def setAllDirectoryPaths(self):
         """
         Opens the filechooser and sets the images folder and the save folder
         for Mycompressor and MyWatermark
@@ -706,7 +705,7 @@ class PicturessMainPage(BoxLayout):
 
     
     @mainthread
-    def findImageFolderAux(self, pX):
+    def setAllDirectoryPathsAux(self, pX):
         """
         This is the callback function for the find Image method
 
