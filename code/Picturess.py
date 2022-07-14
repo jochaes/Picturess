@@ -1,5 +1,4 @@
 #PIL
-
 import PIL
 from PIL import Image
 
@@ -61,8 +60,6 @@ if hasattr(sys, "frozen"):
     requests.utils.DEFAULT_CA_BUNDLE_PATH = overrideWhere()
     requests.adapters.DEFAULT_CA_BUNDLE_PATH = overrideWhere()
 #--------------------------------------------------------------------------------------------------------------------
-
-
 
 class MyWatermark:
     """
@@ -239,6 +236,7 @@ class MyCompressor:
     
     def setAPIKey(self, pAPIKEY):
         self.api_key = pAPIKEY
+        tinify.key = pAPIKEY
 
 
     def compressImage(self, pInputFilePath, pOutputFilePath ):
@@ -635,8 +633,8 @@ class PicturessMainPage(BoxLayout):
         print("validate key aux: result :", result)
 
         if result[0]:
-            self.COMPRESSOR_INSTANCE.setAPIKey(result[2])
-            self.FILE_HANDLER_INSTANCE.changeJsonFileKey(result[2])
+            self.COMPRESSOR_INSTANCE.setAPIKey(result[1])
+            self.FILE_HANDLER_INSTANCE.changeJsonFileKey(result[1])
             self.btns_enable_compression = True
             self.startup_key_valid = True
         else:
