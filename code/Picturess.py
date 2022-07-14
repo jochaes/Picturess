@@ -10,6 +10,7 @@ import plyer.platforms.macosx.filechooser
 #import plyer.platforms.win.filechooser
 
 from plyer import filechooser
+from rsa import newkeys
 
 #TinyPng
 from tinify import tinify
@@ -31,6 +32,10 @@ import glob
 import concurrent.futures
 import json
 
+#Global
+#Set to True when creating the distribution app with pyinstaller 
+#All contents of the folder resources must be in the code folder before using pyinstaller
+PRODUCTION = False
 
 #--------------------------------- Overrrides the certificate location for the request library -----------------------
 def overrideWhere():
@@ -384,7 +389,7 @@ class MyFileHandler:
         changeJsonFileKey()
             Modifies the key inside the json file 
         
-        loadResourcePath(pResourceName, pIsProduction)
+        loadResourcePath(pResourceName)
             Returns the path of the watermak image 
     """
 
@@ -421,7 +426,7 @@ class MyFileHandler:
         if not os.path.exists( pDirectoryPath ):
             os.makedirs(pDirectoryPath, exist_ok=False)
 
-    def loadResourcePath(self, pResourceName, pIsProduction):
+    def loadResourcePath(self, pResourceName):
         """
         Returns the path of the watermak image 
 
@@ -438,7 +443,7 @@ class MyFileHandler:
         py_file_path = os.path.dirname(os.path.abspath(__file__))
         resource_path = os.path.dirname(py_file_path)
 
-        if pIsProduction:
+        if PRODUCTION:
             resource_path += "/" + pResourceName
         else:
             resource_path += "/resources/" + pResourceName
@@ -458,7 +463,7 @@ class MyFileHandler:
                 w : Write 
 
         """
-        json_path = self.loadResourcePath("data.json",False)
+        json_path = self.loadResourcePath("data.json")
         file_pointer = open(json_path, pOpenMode)
         return file_pointer
 
@@ -569,7 +574,7 @@ class PicturessMainPage(BoxLayout):
         super().__init__(**kwargs)
         self.FILE_HANDLER_INSTANCE = MyFileHandler()
 
-        self.watermark_path = self.FILE_HANDLER_INSTANCE.loadResourcePath("logo_w_letters.png",False)
+        self.watermark_path = self.FILE_HANDLER_INSTANCE.loadResourcePath("logo_w_letters.png")
 
         self.WATERMARK_INSTANCE = MyWatermark("","", self.watermark_path)
         self.COMPRESSOR_INSTANCE = MyCompressor("", "")
@@ -825,15 +830,18 @@ class PicturessMainPage(BoxLayout):
         """
         newKey = pInstance.text
         popup = pInstance.parent.parent.parent.parent
-        popup.dismiss()
-        print("PICTURESS_APP ON_ENTER VALUE:",newKey)
-        #self.FILE_HANDLER_INSTANCE.changeJsonFileKey(newKey)
 
+        if newKey.strip() != "" :
+            popup.dismiss()
+            print("PICTURESS_APP ON_ENTER VALUE:",newKey)
+            #self.FILE_HANDLER_INSTANCE.changeJsonFileKey(newKey)
 
-        #Starts Thread 
-        self.lab_right_compr_eta = "Validating Key"
-        future = self.EXECUTOR.submit(self.validateKey,newKey)
-        future.add_done_callback( self.validateKeyAux)
+            #Starts Thread 
+            self.lab_right_compr_eta = "Validating Key"
+            future = self.EXECUTOR.submit(self.validateKey,newKey)
+            future.add_done_callback( self.validateKeyAux)
+        else:
+            pInstance.text = ""
 
 
     def popChangeAPIKey(self,pTitle):
