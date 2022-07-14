@@ -1,4 +1,3 @@
-#KEY = hlH2Tr7d0p0gpnPsypV53Klp5kR3pbPv
 #PIL
 
 import PIL
@@ -385,7 +384,7 @@ class MyFileHandler:
         changeJsonFileKey()
             Modifies the key inside the json file 
         
-        watermarkResourcePath(pIsProduction)
+        loadResourcePath(pResourceName, pIsProduction)
             Returns the path of the watermak image 
     """
 
@@ -422,7 +421,7 @@ class MyFileHandler:
         if not os.path.exists( pDirectoryPath ):
             os.makedirs(pDirectoryPath, exist_ok=False)
 
-    def watermarkResourcePath(self, pIsProduction):
+    def loadResourcePath(self, pResourceName, pIsProduction):
         """
         Returns the path of the watermak image 
 
@@ -433,15 +432,17 @@ class MyFileHandler:
             pIsProduction : bool 
                 True for production path 
                 False for develepment path 
+            pResourceName : str
+                Name of the resource to load
         """
         py_file_path = os.path.dirname(os.path.abspath(__file__))
-        watermark_path = os.path.dirname(py_file_path)
+        resource_path = os.path.dirname(py_file_path)
 
         if pIsProduction:
-            watermark_path += "/logo_w_letters.png"
+            resource_path += "/" + pResourceName
         else:
-            watermark_path += "/watermark/logo_w_letters.png"
-        return watermark_path
+            resource_path += "/resources/" + pResourceName
+        return resource_path
 
     def openJsonFile(self, pOpenMode):
         """
@@ -457,7 +458,7 @@ class MyFileHandler:
                 w : Write 
 
         """
-        json_path = os.path.dirname(os.path.abspath(__file__)) + "/data.json"
+        json_path = self.loadResourcePath("data.json",False)
         file_pointer = open(json_path, pOpenMode)
         return file_pointer
 
@@ -568,14 +569,15 @@ class PicturessMainPage(BoxLayout):
         super().__init__(**kwargs)
         self.FILE_HANDLER_INSTANCE = MyFileHandler()
 
-        self.watermark_path = self.FILE_HANDLER_INSTANCE.watermarkResourcePath(False)
+        self.watermark_path = self.FILE_HANDLER_INSTANCE.loadResourcePath("logo_w_letters.png",False)
 
         self.WATERMARK_INSTANCE = MyWatermark("","", self.watermark_path)
         self.COMPRESSOR_INSTANCE = MyCompressor("", "")
         self.EXECUTOR = concurrent.futures.ThreadPoolExecutor()
 
         #Starts Thread 
-        future = self.EXECUTOR.submit(self.validateKey)
+        api_key = self.loadAPIKey()
+        future = self.EXECUTOR.submit(self.validateKey,api_key)
         future.add_done_callback( self.validateKeyAux)
 
     #Kivy Label Messages
@@ -591,23 +593,22 @@ class PicturessMainPage(BoxLayout):
     lab_right_save_fldr = StringProperty("Images are taken from:")
     
     #Variables 
+    startup_key_valid  = False
     btns_enable_compression = BooleanProperty(False)
     compress_with_watermark = True 
     watermark_path     =""
 
 
-    def validateKey(self):
+    def validateKey(self, pKey):
         """
-        Validates the key when the app starts 
+        Validates the key when the app starts and when the user changes it 
 
         Creates a thread that is in charge to 
         display a message if the key is invalid. 
         And also the thread  validates the key with the api 
 
         """
-
-        stored_api_key = self.loadAPIKey()
-        validation = self.COMPRESSOR_INSTANCE.validateKey(stored_api_key)
+        validation = self.COMPRESSOR_INSTANCE.validateKey(pKey)
         return validation
 
     @mainthread
@@ -626,16 +627,20 @@ class PicturessMainPage(BoxLayout):
         """
     
         result = pX.result()
+        print("validate key aux: result :", result)
 
         if result[0]:
             self.COMPRESSOR_INSTANCE.setAPIKey(result[2])
+            self.FILE_HANDLER_INSTANCE.changeJsonFileKey(result[2])
             self.btns_enable_compression = True
-
+            self.startup_key_valid = True
         else:
-            self.btns_enable_compression = False
-            self.callPops("Error Validating API KEY", "Please set a correct API KEY First")
-            print("validateKeyAux: ",pX.result())
-
+            if self.startup_key_valid:
+                self.callPops("Error Validating API KEY", "The key is invalid,\nthe app will still use the last working key")
+            else:
+                self.btns_enable_compression = False
+                self.callPops("Error Validating API KEY", "Please set a correct API KEY First")
+                print("ValidateKeyAux: ",pX.result())
 
     def loadAPIKey(self):
         """ Returns the key inside the Json file """
@@ -802,7 +807,7 @@ class PicturessMainPage(BoxLayout):
         self.COMPRESSOR_INSTANCE.folder_save_path = ""
     
     #Todo
-    #Validating if the usea changed the KEY
+    #Validating if the user changed the KEY
     #IF there was no change then do nothing 
     #If the key is invalid then do nothing 
     def onEnterChangeKey(self, pInstance):
@@ -822,11 +827,12 @@ class PicturessMainPage(BoxLayout):
         popup = pInstance.parent.parent.parent.parent
         popup.dismiss()
         print("PICTURESS_APP ON_ENTER VALUE:",newKey)
-        self.FILE_HANDLER_INSTANCE.changeJsonFileKey(newKey)
+        #self.FILE_HANDLER_INSTANCE.changeJsonFileKey(newKey)
+
 
         #Starts Thread 
         self.lab_right_compr_eta = "Validating Key"
-        future = self.EXECUTOR.submit(self.validateKey)
+        future = self.EXECUTOR.submit(self.validateKey,newKey)
         future.add_done_callback( self.validateKeyAux)
 
 
