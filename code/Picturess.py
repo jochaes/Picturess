@@ -8,7 +8,6 @@ from PIL import Image
 import plyer.platforms.macosx.filechooser
 #import plyer.platforms.win.filechooser
 from plyer import filechooser
-from rsa import newkeys
 
 #TinyPng
 from tinify import tinify
@@ -140,7 +139,7 @@ class MyWatermark:
 
         save_path = self.folder_save_path + '/' + pImageFileName
         img.save(save_path)
-    
+
     def bulkWatermark(self):
         """
         Watermarks a set of images inside a folder 
@@ -389,6 +388,28 @@ class MyFileHandler:
         loadResourcePath(pResourceName)
             Returns the path of the watermak image 
     """
+    def openFile(self):
+        """Opens a file chooser, and returns the file that the user choose. """
+        image_file_path = filechooser.open_file(title="Select a new Watermark Image")
+
+        if image_file_path is None or image_file_path == []:
+            return False
+        return image_file_path[0] 
+    
+    def changeWatermark(self, pNewWatermarkPath):
+        old_watermark_path = self.loadResourcePath("watermark.png")
+
+        try:
+            new_watermark_image = PIL.Image.open(pNewWatermarkPath, formats=['png','jpeg'])
+            new_watermark_image.save(old_watermark_path)
+        except TypeError as e:
+            print(e)
+            return False
+        except PIL.UnidentifiedImageError as e:
+            print(e)
+            return False
+        return True
+
 
     def openFolder(self):
         """Opens a file chooser, and returns the folder that the user choose. """
@@ -571,7 +592,7 @@ class PicturessMainPage(BoxLayout):
         super().__init__(**kwargs)
         self.FILE_HANDLER_INSTANCE = MyFileHandler()
 
-        self.watermark_path = self.FILE_HANDLER_INSTANCE.loadResourcePath("logo_w_letters.png")
+        self.watermark_path = self.FILE_HANDLER_INSTANCE.loadResourcePath("watermark.png")
 
         self.WATERMARK_INSTANCE = MyWatermark("","", self.watermark_path)
         self.COMPRESSOR_INSTANCE = MyCompressor("", "")
@@ -632,8 +653,8 @@ class PicturessMainPage(BoxLayout):
         print("validate key aux: result :", result)
 
         if result[0]:
-            self.COMPRESSOR_INSTANCE.setAPIKey(result[1])
-            self.FILE_HANDLER_INSTANCE.changeJsonFileKey(result[1])
+            self.COMPRESSOR_INSTANCE.setAPIKey(result[2])
+            self.FILE_HANDLER_INSTANCE.changeJsonFileKey(result[2])
             self.btns_enable_compression = True
             self.startup_key_valid = True
         else:
@@ -687,6 +708,25 @@ class PicturessMainPage(BoxLayout):
         if btn_id == "btn_change_api_key":
             print("Change API KEY")
             self.popChangeAPIKey("Change API key")
+
+        if btn_id == "btn_change_watermark":
+            print("Change Watermark")
+            self.changeWatermarkLogo()
+
+    def changeWatermarkLogo(self):
+        print("changeWatermarkLogo: changing  watermark logo ")
+        new_watermark_path = self.FILE_HANDLER_INSTANCE.openFile() 
+        if new_watermark_path:
+            print(new_watermark_path)
+            result = self.FILE_HANDLER_INSTANCE.changeWatermark(new_watermark_path)
+
+            if not result:
+                self.callPops("File Format Error", "Image format not supported \nOnly PNG or JPEG")
+
+            print("changeWatermarkLogo: result",result)
+        else:
+            print("No changes to watermark")
+        #Open File Chooser
 
 
     def setAllDirectoryPaths(self):

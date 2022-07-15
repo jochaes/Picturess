@@ -101,10 +101,17 @@ PicturessMainPage:
                 text: root.lab_left_waterm
             Switch:
                 active:True
-                size_hint: 1,None
-                height:"20dp"
+                size_hint: 1,.1
+                #height:"20dp"
                 #text:"Watermark?"
                 on_active: root.onSwitchActive(self)
+                disabled: not root.btns_enable_compression
+            Button:
+                size_hint: 1,.2
+                text:"Change Watermark"
+                ids: {"btn_id":"btn_change_watermark"}
+
+                on_release: root.onButtonClick(self)
                 disabled: not root.btns_enable_compression
 #_____________________________________Options_Bar-Finish_____________________________________
 
