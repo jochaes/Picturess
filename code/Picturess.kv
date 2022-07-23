@@ -72,7 +72,10 @@ PicturessMainPage:
         orientation:"horizontal"
 
 #_____________________________________Options_Bar-Start_____________________________________
-        StackLayout:
+        BoxLayout:
+            orientation:"vertical"
+            padding: 20
+            spacing: 10
             canvas:
                 Color:
                     rgba: 0, 0, 0, 1
@@ -80,8 +83,6 @@ PicturessMainPage:
                     width: 1
                     rectangle: self.x, self.y, self.width, self.height
             size_hint: 0.3,1
-            orientation:"rl-tb"
-            padding: ("10dp","10dp","10dp","10dp" )
 
             Label:
                 size_hint:1,.1
@@ -106,6 +107,11 @@ PicturessMainPage:
                 #text:"Watermark?"
                 on_active: root.onSwitchActive(self)
                 disabled: not root.btns_enable_compression
+
+            Image:
+                id: image_viewer
+                source: root.watermark_path
+    
             Button:
                 size_hint: 1,.2
                 text:"Change Watermark"

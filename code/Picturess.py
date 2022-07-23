@@ -9,8 +9,10 @@ import plyer.platforms.macosx.filechooser
 #import plyer.platforms.win.filechooser
 from plyer import filechooser
 
+
 #TinyPng
 from tinify import tinify
+
 
 #Kivy
 from kivy.app import App
@@ -21,6 +23,7 @@ from kivy.properties import StringProperty, BooleanProperty
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
+
 
 #os
 import os 
@@ -366,6 +369,9 @@ class MyFileHandler:
 
     Methods
     -------
+        openFile()
+            Opens a file chooser, and returns the file that the user choose. 
+
         openFolder(parameter)
             Opens the plyer filechooser and returns the path of the folder that 
             the user choose. 
@@ -622,6 +628,7 @@ class PicturessMainPage(BoxLayout):
     watermark_path     =""
 
 
+
     def validateKey(self, pKey):
         """
         Validates the key when the app starts and when the user changes it 
@@ -664,6 +671,8 @@ class PicturessMainPage(BoxLayout):
                 self.btns_enable_compression = False
                 self.callPops("Error Validating API KEY", "Please set a correct API KEY First")
                 print("ValidateKeyAux: ",pX.result())
+        self.btns_enable_compression = True
+
 
     def loadAPIKey(self):
         """ Returns the key inside the Json file """
@@ -707,10 +716,12 @@ class PicturessMainPage(BoxLayout):
 
         if btn_id == "btn_change_api_key":
             print("Change API KEY")
+            self.btns_enable_compression = False
             self.popChangeAPIKey("Change API key")
 
         if btn_id == "btn_change_watermark":
             print("Change Watermark")
+            self.btns_enable_compression = False
             self.changeWatermarkLogo()
 
     def changeWatermarkLogo(self):
@@ -724,8 +735,15 @@ class PicturessMainPage(BoxLayout):
                 self.callPops("File Format Error", "Image format not supported \nOnly PNG or JPEG")
 
             print("changeWatermarkLogo: result",result)
+            self.btns_enable_compression = True
+            self.watermark_path = self.FILE_HANDLER_INSTANCE.loadResourcePath("watermark.png")
+            self.ids.image_viewer.reload()
+
         else:
             print("No changes to watermark")
+
+            self.btns_enable_compression = True
+
         #Open File Chooser
 
 
@@ -879,6 +897,8 @@ class PicturessMainPage(BoxLayout):
             future.add_done_callback( self.validateKeyAux)
         else:
             pInstance.text = ""
+            self.btns_enable_compression = False
+
 
 
     def popChangeAPIKey(self,pTitle):
