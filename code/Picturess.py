@@ -613,8 +613,12 @@ class PicturessMainPage(BoxLayout):
     label_api_messages = StringProperty("API Messages") 
     label_app_alerts = StringProperty("APP Alerts") 
 
-    lab_left_images = StringProperty("Images")
-    lab_left_waterm = StringProperty("Watermark Images?")
+    lab_left_images = StringProperty("Compress Options")
+    lab_left_waterm = StringProperty("Watermark Options")
+    lab_left_waterm_add = StringProperty("Add Watermark to Images")
+
+    lab_watermark_position = StringProperty("Watermark Position")
+    lab_watermark_size = StringProperty("Watermark Size")
 
     lab_right_compr_eta = StringProperty("Waiting")
     lab_right_compr_inf = StringProperty("Images will be stored at:")
@@ -692,6 +696,7 @@ class PicturessMainPage(BoxLayout):
         self.compress_with_watermark = pWidget.active
         print("Watermark? ", pWidget.active)
 
+
     def onButtonClick(self, pWidget):
         """
         Button click handler
@@ -723,6 +728,14 @@ class PicturessMainPage(BoxLayout):
             print("Change Watermark")
             self.btns_enable_compression = False
             self.changeWatermarkLogo()
+        
+        if btn_id == "spinner_watermark_size":
+            print("Change Watermark Size")
+            print("New size:", pWidget.text )
+
+        if btn_id == "spinner_watermark_position":
+            print("Change Watermark Position")
+            print("New Position:", pWidget.text )
 
     def changeWatermarkLogo(self):
         print("changeWatermarkLogo: changing  watermark logo ")
@@ -924,6 +937,7 @@ class PicturessMainPage(BoxLayout):
 
         pop=Popup(content=box_layout,title=pTitle,auto_dismiss=True,size_hint=(.5, .25))
         pop.open()
+
 
 
     #Todo

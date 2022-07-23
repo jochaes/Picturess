@@ -88,6 +88,9 @@ PicturessMainPage:
                 size_hint:1,.1
                 color: 0,0,0,1
                 text:root.lab_left_images
+                text_size: self.size
+                halign: 'center'
+                valign: 'middle'
                 #font_name:"fonts/AnekLatin.ttf"
             Button:
                 size_hint: 1,.2
@@ -100,14 +103,61 @@ PicturessMainPage:
                 size_hint:1,.1
                 color: 0,0,0,1
                 text: root.lab_left_waterm
-            Switch:
-                active:True
-                size_hint: 1,.1
-                #height:"20dp"
-                #text:"Watermark?"
-                on_active: root.onSwitchActive(self)
-                disabled: not root.btns_enable_compression
+                text_size: self.size
+                halign: 'center'
+                valign: 'middle'
 
+
+            BoxLayout:
+                orientation:"horizontal"
+                size_hint: 1,.2
+
+                Label:
+                    size_hint:0.5,1
+                    color: 0,0,0,1
+                    text: root.lab_left_waterm_add
+                    text_size: self.size
+                    font_size:"12sp"
+                    halign: 'left'
+                    valign: 'middle'
+                Switch:
+                    active:True
+                    size_hint: 0.5,1
+                    #height:"20dp"
+                    #text:"Watermark?"
+                    on_active: root.onSwitchActive(self)
+                    disabled: not root.btns_enable_compression
+            Label:
+                size_hint:1,.1
+                color: 0,0,0,1
+                text: root.lab_watermark_position
+                text_size: self.size
+                halign: 'left'
+                valign: 'middle'
+            Spinner:
+                size_hint: 1,.2
+                text: "bottom-right"
+                values: ["bottom-right", "bottom-left", "center", "top-right", "top-left"]
+
+                ids: {"btn_id":"spinner_watermark_position"}
+                on_text: root.onButtonClick(self)
+                disabled: not root.btns_enable_compression
+            Label:
+                size_hint:1,.1
+                color: 0,0,0,1
+                text: root.lab_watermark_size
+                text_size: self.size
+                halign: 'left'
+                valign: 'middle'
+            Spinner:
+                size_hint: 1,.2
+                text: "1"
+                values:["1", "2", "3","4"]
+
+                ids: {"btn_id":"spinner_watermark_size"}
+                on_text: root.onButtonClick(self)
+                disabled: not root.btns_enable_compression
+                
             Image:
                 id: image_viewer
                 source: root.watermark_path
