@@ -610,8 +610,10 @@ class PicturessMainPage(BoxLayout):
         future.add_done_callback( self.validateKeyAux)
 
     #Kivy Label Messages
-    label_api_messages = StringProperty("API Messages") 
-    label_app_alerts = StringProperty("APP Alerts") 
+    label_api_messages = StringProperty("        ") 
+    label_app_alerts = StringProperty("        ") 
+    # label_api_messages = StringProperty("API Messages") 
+    # label_app_alerts = StringProperty("APP Alerts") 
 
     lab_left_images = StringProperty("Compress Options")
     lab_left_waterm = StringProperty("Watermark Options")
@@ -621,9 +623,9 @@ class PicturessMainPage(BoxLayout):
     lab_watermark_size = StringProperty("Watermark Size")
 
     lab_right_compr_eta = StringProperty("Waiting")
-    lab_right_compr_inf = StringProperty("Images will be stored at:")
+    lab_right_compr_inf = StringProperty("Save images at:")
 
-    lab_right_save_fldr = StringProperty("Images are taken from:")
+    lab_right_save_fldr = StringProperty("Folder:")
     
     #Variables 
     startup_key_valid  = False
@@ -775,8 +777,8 @@ class PicturessMainPage(BoxLayout):
             self.COMPRESSOR_INSTANCE.folder_path = open_folder
             self.COMPRESSOR_INSTANCE.folder_save_path = save_folder
 
-            self.lab_right_compr_inf = "Images will be stored at: \n " + save_folder
-            self.lab_right_save_fldr = "Images are taken from: \n "+ open_folder
+            self.lab_right_compr_inf = "Save images at: \n " + save_folder
+            self.lab_right_save_fldr = "Folder: \n "+ open_folder
 
         else:
             print("No eligió ningún folder")

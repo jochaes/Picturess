@@ -127,36 +127,36 @@ PicturessMainPage:
                     #text:"Watermark?"
                     on_active: root.onSwitchActive(self)
                     disabled: not root.btns_enable_compression
-            Label:
-                size_hint:1,.1
-                color: 0,0,0,1
-                text: root.lab_watermark_position
-                text_size: self.size
-                halign: 'left'
-                valign: 'middle'
-            Spinner:
-                size_hint: 1,.2
-                text: "bottom-right"
-                values: ["bottom-right", "bottom-left", "center", "top-right", "top-left"]
+            # Label:
+            #     size_hint:1,.1
+            #     color: 0,0,0,1
+            #     text: root.lab_watermark_position
+            #     text_size: self.size
+            #     halign: 'left'
+            #     valign: 'middle'
+            # Spinner:
+            #     size_hint: 1,.2
+            #     text: "bottom-right"
+            #     values: ["bottom-right", "bottom-left", "center", "top-right", "top-left"]
 
-                ids: {"btn_id":"spinner_watermark_position"}
-                on_text: root.onButtonClick(self)
-                disabled: not root.btns_enable_compression
-            Label:
-                size_hint:1,.1
-                color: 0,0,0,1
-                text: root.lab_watermark_size
-                text_size: self.size
-                halign: 'left'
-                valign: 'middle'
-            Spinner:
-                size_hint: 1,.2
-                text: "1"
-                values:["1", "2", "3","4"]
+            #     ids: {"btn_id":"spinner_watermark_position"}
+            #     on_text: root.onButtonClick(self)
+            #     disabled: not root.btns_enable_compression
+            # Label:
+            #     size_hint:1,.1
+            #     color: 0,0,0,1
+            #     text: root.lab_watermark_size
+            #     text_size: self.size
+            #     halign: 'left'
+            #     valign: 'middle'
+            # Spinner:
+            #     size_hint: 1,.2
+            #     text: "1"
+            #     values:["1", "2", "3","4"]
 
-                ids: {"btn_id":"spinner_watermark_size"}
-                on_text: root.onButtonClick(self)
-                disabled: not root.btns_enable_compression
+            #     ids: {"btn_id":"spinner_watermark_size"}
+            #     on_text: root.onButtonClick(self)
+            #     disabled: not root.btns_enable_compression
                 
             Image:
                 id: image_viewer
@@ -192,7 +192,7 @@ PicturessMainPage:
                     max:100
                 Label:
                     color: 0,0,0,1
-                    text:root.lab_right_compr_inf
+                    text:root.lab_right_save_fldr
                 
 #_____________________________________Action_Bar-Start_____________________________________
 
@@ -212,7 +212,7 @@ PicturessMainPage:
                     halign: 'left'
                     valign: 'top'
                     color: 0,0,0,1
-                    text:root.lab_right_save_fldr
+                    text:root.lab_right_compr_inf
                     text_size: self.size
 
                 Button:
