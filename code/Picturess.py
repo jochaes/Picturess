@@ -5,8 +5,8 @@ from PIL import Image
 #import kivy
 
 #plyer
-import plyer.platforms.macosx.filechooser
-#import plyer.platforms.win.filechooser
+#import plyer.platforms.macosx.filechooser
+import plyer.platforms.win.filechooser
 from plyer import filechooser
 
 
