@@ -11,6 +11,7 @@ from plyer import filechooser
 
 
 #TinyPng
+import tinify
 from tinify import tinify
 
 
@@ -23,6 +24,8 @@ from kivy.properties import StringProperty, BooleanProperty
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.label import Label
+from kivy.uix.switch import Switch
+from kivy.uix.progressbar import ProgressBar
 
 
 #os
@@ -47,7 +50,10 @@ def overrideWhere():
     
 
 # is the program compiled?
-if hasattr(sys, "frozen"):
+#if hasattr(sys, "__compiled__"):
+if ('__compiled__'  in globals().keys()):
+    print("Entra a sobreescribir certificado")
+    PRODUCTION = True
     import certifi.core
 
     os.environ["REQUESTS_CA_BUNDLE"] = overrideWhere()
@@ -468,7 +474,8 @@ class MyFileHandler:
         resource_path = os.path.dirname(py_file_path)
 
         if PRODUCTION:
-            resource_path += "/" + pResourceName
+            py_file_path += "/" + pResourceName
+            return py_file_path
         else:
             resource_path += "/resources/" + pResourceName
         return resource_path
