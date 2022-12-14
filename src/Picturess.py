@@ -34,6 +34,7 @@ import sys
 import glob
 import concurrent.futures
 import json
+import datetime
 
 #Global
 #Set to True when creating the distribution app with pyinstaller 
@@ -97,6 +98,7 @@ class MyWatermark:
         self.folder_path = pFolderPath
         self.watermark_path = pWatermarkPath
         self.folder_save_path = pSaveFolderPath
+        self.max_size = (1280,720)
     
     def watermark(self, pImageFileName):
         """
@@ -117,6 +119,8 @@ class MyWatermark:
         #Image
         image_file_path = self.folder_path + '/' + pImageFileName
         img = PIL.Image.open(image_file_path)
+        img = img.resize(self.max_size)
+
         my_height, my_width = img.size
         
         print("Imagen a Watermark: ", image_file_path)
@@ -436,9 +440,13 @@ class MyFileHandler:
 
         if image_folder_path is None or image_folder_path == []:
             return (0,0)
+        #Save Time
+        ct = datetime.datetime.now()
+
+        folder_name = f"/Images_Ready_{ct.day}_{ct.month}_{ct.year}_{ct.hour}_{ct.minute}_{ct.second}"
 
         #Save Folder Path
-        save_directory =  os.path.dirname(image_folder_path[0]) + "/ready_to_upload"
+        save_directory =  os.path.dirname(image_folder_path[0]) + folder_name
 
         #Check if path exists
         return (image_folder_path[0], save_directory)
